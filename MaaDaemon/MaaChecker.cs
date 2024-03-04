@@ -11,9 +11,11 @@ namespace MaaDaemon {
         public Task Invoke() {
             // 指定进程名
             string mumu = "MuMuVMMHeadless";
+            string mumuplayer = "MuMuPlayer";
             var maa = GetProcessFileName("MAA");
             if (!string.IsNullOrEmpty(maa)) {
-                if (CheckIfNeedKillAndKill(maa)) {
+                if (CheckIfNeedKillAndKill("MAA")) {
+                    KillProcess(mumuplayer);
                     KillProcess(mumu);
                     Process.Start(maa);
                 }
