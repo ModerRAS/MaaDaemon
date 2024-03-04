@@ -1,4 +1,5 @@
 ﻿using Coravel.Invocable;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace MaaDaemon {
     public class MaaChecker : IInvocable {
+        private readonly ILogger logger;
+        public MaaChecker(ILogger<MaaChecker> logger) {
+            this.logger = logger;
+        }
         public Task Invoke() {
             // 指定进程名
             string mumu = "MuMuVMMHeadless";
@@ -33,7 +38,7 @@ namespace MaaDaemon {
                 TimeSpan runTime = DateTime.Now - process.StartTime;
                 if (runTime > TimeSpan.FromHours(2)) {
                     process.Kill();
-                    Console.WriteLine($"{processName}运行了超过2小时，已杀死");
+                    logger.LogInformation($"{processName}运行了超过2小时，已杀死");
                     return true;
                 }
             }
@@ -43,11 +48,9 @@ namespace MaaDaemon {
             // 获取所有同名进程
             Process[] processes = Process.GetProcessesByName(processName);
 
-            // 遍历进程并打印运行时间
             foreach (Process process in processes) {
-                TimeSpan runTime = DateTime.Now - process.StartTime;
                 process.Kill();
-                Console.WriteLine($"已杀死{processName}");
+                logger.LogInformation($"已杀死{processName}");
             }
         }
 
@@ -60,7 +63,7 @@ namespace MaaDaemon {
                 try {
                     return process?.MainModule?.FileName ?? string.Empty;
                 } catch (Exception ex) {
-                    Console.WriteLine($"Error getting executable path for process {process.ProcessName}: {ex.Message}");
+                    logger.LogWarning($"Error getting executable path for process {process.ProcessName}: {ex.Message}");
                 }
             }
             return string.Empty;
